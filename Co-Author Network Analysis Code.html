@@ -1,0 +1,64 @@
+<html>
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- use version 0.18.11 -->
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.18.11/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div id="navbar"><span>Red Stapler - SheetJS </span></div>
+    <div id="wrapper">
+
+        <input type="file" id="input_dom_element">
+
+    </div>
+    <script>
+        function handleFile(e) {
+            console.log('in handler')
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = e.target.result;
+
+                var workbook = XLSX.read(e.target.result);
+                var sheet_name_list = workbook.SheetNames;
+                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+                let res = {};
+                let index = 1;
+                const source_papers = [];
+                for (const item of xlData) {
+                    res[`Source Paper ${index}`] = {};
+                    const source_paper = item['Source Paper'];
+                    res[`Source Paper ${index}`].name = source_paper;
+                    const authers = source_paper.split(',');
+                    for (const key in item) {
+                        if (key !== 'Source Paper') {
+                            res[`Source Paper ${index}`][`${key}`] = {};
+                            if (Object.prototype.hasOwnProperty.call(item, key)) {
+                                const element = item[key];
+                                for (const auther of authers) {
+                                    if (element.includes(auther)) {
+                                        res[`Source Paper ${index}`][`${key}`][auther] = true;
+                                    }
+                                    else
+                                        res[`Source Paper ${index}`][`${key}`][auther] = false;
+                                }
+                            }
+                        }
+                    }
+
+
+                    index++;
+                }
+                console.log(res);
+
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        input_dom_element.addEventListener("change", handleFile, false);
+    </script>
+</body>
+
+</html>
